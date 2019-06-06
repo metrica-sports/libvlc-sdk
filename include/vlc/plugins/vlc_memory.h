@@ -1,10 +1,9 @@
 /*****************************************************************************
- * vlc_md5.h: MD5 hash
+ * vlc_memory.h: Memory functions
  *****************************************************************************
- * Copyright © 2004-2011 VLC authors and VideoLAN
+ * Copyright (C) 2009 VLC authors and VideoLAN
  *
- * Authors: Rémi Denis-Courmont
- *          Rafaël Carré
+ * Authors: JP Dinger <jpd at videolan dot org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -21,39 +20,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-#ifndef VLC_MD5_H
-# define VLC_MD5_H
+#ifndef VLC_MEMORY_H
+#define VLC_MEMORY_H 1
+
+#include <stdlib.h>
 
 /**
  * \file
- * This file defines functions and structures to compute MD5 digests
+ * This file deals with memory fixups
  */
-
-struct md5_s
-{
-    uint32_t A, B, C, D;          /* chaining variables */
-    uint32_t nblocks;
-    uint8_t buf[64];
-    int count;
-};
-
-VLC_API void InitMD5( struct md5_s * );
-VLC_API void AddMD5( struct md5_s *, const void *, size_t );
-VLC_API void EndMD5( struct md5_s * );
 
 /**
- * Returns a char representation of the md5 hash, as shown by UNIX md5 or
- * md5sum tools.
+ * \defgroup memory Memory
+ * @{
  */
-static inline char * psz_md5_hash( struct md5_s *md5_s )
+
+/**
+ * This wrapper around realloc() will free the input pointer when
+ * realloc() returns NULL. The use case ptr = realloc(ptr, newsize) will
+ * cause a memory leak when ptr pointed to a heap allocation before,
+ * leaving the buffer allocated but unreferenced. vlc_realloc() is a
+ * drop-in replacement for that use case (and only that use case).
+ */
+static inline void *realloc_or_free( void *p, size_t sz )
 {
-    char *psz = malloc( 33 ); /* md5 string is 32 bytes + NULL character */
-    if( likely(psz) )
-    {
-        for( int i = 0; i < 16; i++ )
-            sprintf( &psz[2*i], "%02" PRIx8, md5_s->buf[i] );
-    }
-    return psz;
+    void *n = realloc(p,sz);
+    if( !n )
+        free(p);
+    return n;
 }
+
+/**
+ * @}
+ */
 
 #endif
