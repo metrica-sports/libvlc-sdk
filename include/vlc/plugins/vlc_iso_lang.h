@@ -1,10 +1,11 @@
 /*****************************************************************************
- * vlc_md5.h: MD5 hash
+ * vlc_iso_lang.h: function to decode language code (in dvd or a52 for instance).
  *****************************************************************************
- * Copyright © 2004-2011 VLC authors and VideoLAN
+ * Copyright (C) 1998-2001 VLC authors and VideoLAN
+ * $Id: f27fb665f3db2754e137610a74f14d157bb647e9 $
  *
- * Authors: Rémi Denis-Courmont
- *          Rafaël Carré
+ * Author: Stéphane Borel <stef@via.ecp.fr>
+ *         Arnaud de Bossoreille de Ribou <bozo@via.ecp.fr>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -21,39 +22,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-#ifndef VLC_MD5_H
-# define VLC_MD5_H
-
 /**
  * \file
- * This file defines functions and structures to compute MD5 digests
+ * This file defines functions and structures for iso639 language codes
  */
 
-struct md5_s
+struct iso639_lang_t
 {
-    uint32_t A, B, C, D;          /* chaining variables */
-    uint32_t nblocks;
-    uint8_t buf[64];
-    int count;
+    const char *psz_eng_name;    /* Description in English */
+    const char psz_iso639_1[3];  /* ISO-639-1 (2 characters) code */
+    const char psz_iso639_2T[4]; /* ISO-639-2/T (3 characters) English code */
+    const char psz_iso639_2B[4]; /* ISO-639-2/B (3 characters) native code */
 };
 
-VLC_API void InitMD5( struct md5_s * );
-VLC_API void AddMD5( struct md5_s *, const void *, size_t );
-VLC_API void EndMD5( struct md5_s * );
-
-/**
- * Returns a char representation of the md5 hash, as shown by UNIX md5 or
- * md5sum tools.
- */
-static inline char * psz_md5_hash( struct md5_s *md5_s )
-{
-    char *psz = malloc( 33 ); /* md5 string is 32 bytes + NULL character */
-    if( likely(psz) )
-    {
-        for( int i = 0; i < 16; i++ )
-            sprintf( &psz[2*i], "%02" PRIx8, md5_s->buf[i] );
-    }
-    return psz;
-}
-
+#if defined( __cplusplus )
+extern "C" {
 #endif
+VLC_API const iso639_lang_t * GetLang_1( const char * );
+VLC_API const iso639_lang_t * GetLang_2T( const char * );
+VLC_API const iso639_lang_t * GetLang_2B( const char * );
+#if defined( __cplusplus )
+}
+#endif
+
