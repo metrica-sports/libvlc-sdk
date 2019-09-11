@@ -1,6 +1,14 @@
 @echo off
 
-call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+rem Get vswhere tool path.
+set vswhere="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+
+rem Get vcvarsall script.
+for /f "usebackq tokens=*" %%i in (`%vswhere% -latest -requires Microsoft.Component.MSBuild -find **\vcvars64.bat`) do (
+  set vcvars64="%%i"
+)
+
+call %vcvars64%
 
 mkdir msvc
 
